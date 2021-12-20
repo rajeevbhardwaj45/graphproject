@@ -19,7 +19,7 @@ class Graph:
 
 
 # read the file to the Airport lists and the routes
-f = open("inputPS12.txt", "r")
+f = open("inputsPS12.txt", "r")
 
 # To the Airports which separted as airports =
 strAirports = f.readline()
@@ -111,19 +111,19 @@ def findMinFlightsusingList( strAirStpt ):
                 yesFlights.append(lstVertices[i])
 
     nminFlights = len(nFlghts)
-    print("The minimum flights that need to be added :", nminFlights)
-
-    print("The flights that need to be added are:")
+    #print("The minimum flights that need to be added :", nminFlights)
+    #print("The flights that need to be added are:", nFlghts)
 
     # To Write to Output File.
     f = open("outputPS12.txt", "w")
-    f.writelines("The minimum flights that need to be added =" + str(nminFlights) + "\n")
+    f.writelines("The minimum flights that need to be added = " + str(nminFlights) + "\n")
     f.writelines("The flights that need to be added are:" + "\n")
     for i in range(nminFlights):
-        f.writelines("[" + strAirStpt + "," + nFlghts[i] + "]\n")
+        if strAirStpt != nFlghts[i]:
+            f.writelines("[" + strAirStpt + ", " + nFlghts[i] + "]\n")
     f.close()
 
-    print(nFlghts)
+    #print(nFlghts)
 
 
 strAirportStpoint = input("Enter the starting Airport : ")
