@@ -1,72 +1,131 @@
-# A class to represent a graph object
+# A simple representation of graph using Edge List
 class Graph:
-    # Constructor
-    def __init__( self, edges, n ):
-        # A list of lists to represent an adjacency list
-        self.adjList = [[] for _ in range(n)]
+    def __init__( self, numvertex ):
+        self.numvertex = numvertex
+        self.vertices = []
+        self.edgeList = []
 
-        # add edges to the directed graph
-        for (src, dest) in edges:
-            self.adjList[src].append(dest)
+    def set_vertex( self, vtx ):
+        self.vertices.append(vtx)
 
+    def set_edge( self, frm, to, cost=0 ):
+        self.edgeList.append([frm, to])
 
-# Function to perform BFS traversal from a given source vertex in a graph to
-# determine if a destination vertex is reachable from the source or not
-def isReachable( graph, src, dest ):
-    # get the total number of nodes in the graph
-    n = len(graph.adjList)
+    def get_vertex( self ):
+        return self.vertices
 
-    # to keep track of whether a vertex is discovered or not
-    discovered = [False] * n
-
-    # create a queue for doing BFS
-    q = list()
-
-    # mark the source vertex as discovered
-    discovered[src] = True
-
-    # enqueue source vertex
-    q.append(src)
-
-    # loop till queue is empty
-    while q:
-
-        # dequeue front node and print it
-        v = q.pop(0)
-
-        # if destination vertex is found
-        if v == dest:
-            return True
-
-        # do for every edge (v, u)
-        for u in graph.adjList[v]:
-            if not discovered[u]:
-                # mark it as discovered and enqueue it
-                discovered[u] = True
-                q.append(u)
-
-    return False
+    def get_edges( self ):
+        return self.edgeList
 
 
-if __name__ == '__main__':
+# read the file to the Airport lists and the routes
+f = open("inputPS12.txt", "r")
 
-    # List of graph edges
-    edges = [
-        (0, 3), (1, 0), (1, 2), (1, 4), (2, 7), (3, 4),
-        (3, 5), (4, 3), (4, 6), (5, 6), (6, 7)
-    ]
+# To the Airports which separted as airports =
+strAirports = f.readline()
+strairportslists = strAirports.split("=")
 
-    # total number of nodes in the graph (labeled from 0 to 7)
-    n = 8
+# Split the Airports names which are separted by comma
+lstairportNames = strairportslists[1].split(',')
+lenAirports = len(lstairportNames)
 
-    # build a graph from the given edges
-    graph = Graph(edges, n)
+# Create Graph class for Graph Edge Impementation and set the vertices as Airport name
+G = Graph(lenAirports)
+for i in range(lenAirports):
+    lstairportNames[i] = lstairportNames[i].strip()
+    G.set_vertex(lstairportNames[i])
 
-    # source and destination vertex
-    (src, dest) = (7, 6)
+# Read teh avilable airport paths which are identified as routes, Read the full paths till end of file. while reading each file
+# seperate the strings which are comma sepearted and used to create the Edge
+strRoutes = f.readline()
+while strRoutes:
+    strRoutes = f.readline()
+    if (strRoutes == ''):
+        break
+    strRoutes = strRoutes.split(',')
+    # G.set_edge(strRoutes[0].strip(),strRoutes[1].strip(),20)
+    G.set_edge(strRoutes[0].strip(), strRoutes[1].strip())
 
-    # perform BFS traversal from the source vertex to check the connectivity
-    if isReachable(graph, src, dest):
-        print(f'Path exists from vertex {src} to vertex {dest}')
-    else:
-        print(f'No path exists between vertices {src} and {dest}')
+f.close()
+
+# flights to be added
+nFlghts = []
+# Avilable flights from starting airport.
+yesFlights = []
+# starting and destination airports.
+edgeList = []
+nVisited = []
+
+
+# Recursive Function to find the minimum No: of Fights.
+def flightsavilablesUsingList( strAirStpt, strAirdtpt, edgeList, nFlghts, yesFlight, nVisited ):
+    bavailable = False
+
+    for j in range(len(edgeList)):
+        if (edgeList[j][1] == strAirdtpt):
+
+            if (nVisited[j] == 0):
+                nVisited[j] = 1
+                if strAirdtpt in yesFlights:
+                    bavailable = True
+                    break
+                else:
+                    strAirdtpt = edgeList[j][0]
+
+                    return flightsavilablesUsingList(strAirStpt, strAirdtpt, edgeList, nFlghts, yesFlight, nVisited)
+            else:
+                nVisited = [0] * len(edgeList)
+
+    if (bavailable == False):
+        if strAirdtpt not in yesFlights:
+            nFlghts.append(strAirdtpt)
+            yesFlights.append(strAirdtpt)
+            G.set_edge(strAirStpt, strAirdtpt)
+
+    return yesFlights, nFlghts, nVisited
+
+
+def findMinFlightsusingList( strAirStpt ):
+    edgeList = G.get_edges()
+    nRows = len(edgeList)
+
+    lstVertices = G.get_vertex()
+
+    # Identify the Avilable routes of entered starting Airport and No avilable routes.
+    for j in range(len(lstVertices)):
+        noFlights = True
+        for i in range(nRows):
+            if (lstVertices[j] == edgeList[i][1]):
+                noFlights = False
+                break
+        if (True == noFlights):
+            nFlghts.append(lstVertices[j])
+            yesFlights.append(lstVertices[j])
+            G.set_edge(strAirStpt, lstVertices[j])
+
+    for i in range(len(lstVertices)):
+        nVisited = [0] * len(edgeList)
+        if (lstVertices[i] != strAirStpt):
+            flightsavilablesUsingList(strAirStpt, lstVertices[i], edgeList, nFlghts, yesFlights, nVisited)
+            if lstVertices[i] not in yesFlights:
+                yesFlights.append(lstVertices[i])
+
+    nminFlights = len(nFlghts)
+    print("The minimum flights that need to be added :", nminFlights)
+
+    print("The flights that need to be added are:")
+
+    # To Write to Output File.
+    f = open("outputPS12.txt", "w")
+    f.writelines("The minimum flights that need to be added =" + str(nminFlights) + "\n")
+    f.writelines("The flights that need to be added are:" + "\n")
+    for i in range(nminFlights):
+        f.writelines("[" + strAirStpt + "," + nFlghts[i] + "]\n")
+    f.close()
+
+    print(nFlghts)
+
+
+strAirportStpoint = input("Enter the starting Airport : ")
+findMinFlightsusingList(strAirportStpoint)
+
