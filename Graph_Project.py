@@ -19,7 +19,7 @@ class Graph:
 
 
 # read the file to the Airport lists and the routes
-f = open("inputsPS12.txt", "r")
+f = open("inputPS12.txt", "r")
 
 # To the Airports which separted as airports =
 strAirports = f.readline()
@@ -52,7 +52,7 @@ f.close()
 nFlghts = []
 # Avilable flights from starting airport.
 yesFlights = []
-# starting and destination airports.
+# Edge List with starting and destination airports.
 edgeList = []
 nVisited = []
 
@@ -92,12 +92,21 @@ def findMinFlightsusingList( strAirStpt ):
     lstVertices = G.get_vertex()
 
     # Identify the Avilable routes of entered starting Airport and No avilable routes.
+    for i in range(nRows):
+        if (strAirStpt == edgeList[i][0]):
+            if (edgeList[i][1] not in yesFlights):
+                yesFlights.append(edgeList[i][1])
+
     for j in range(len(lstVertices)):
         noFlights = True
         for i in range(nRows):
+            if (strAirStpt == lstVertices[j]):
+                noFlights = False
+                break
             if (lstVertices[j] == edgeList[i][1]):
                 noFlights = False
                 break
+
         if (True == noFlights):
             nFlghts.append(lstVertices[j])
             yesFlights.append(lstVertices[j])
@@ -111,19 +120,19 @@ def findMinFlightsusingList( strAirStpt ):
                 yesFlights.append(lstVertices[i])
 
     nminFlights = len(nFlghts)
-    #print("The minimum flights that need to be added :", nminFlights)
-    #print("The flights that need to be added are:", nFlghts)
+    print("The minimum flights that need to be added :", nminFlights)
+
+    print("The flights that need to be added are:")
 
     # To Write to Output File.
     f = open("outputPS12.txt", "w")
-    f.writelines("The minimum flights that need to be added = " + str(nminFlights) + "\n")
+    f.writelines("The minimum flights that need to be added =" + str(nminFlights) + "\n")
     f.writelines("The flights that need to be added are:" + "\n")
     for i in range(nminFlights):
-        if strAirStpt != nFlghts[i]:
-            f.writelines("[" + strAirStpt + ", " + nFlghts[i] + "]\n")
-    f.close()
+        f.writelines("[" + strAirStpt + "," + nFlghts[i] + "]\n")
+        print("[" + strAirStpt + "," + nFlghts[i] + "]")
 
-    #print(nFlghts)
+    f.close()
 
 
 strAirportStpoint = input("Enter the starting Airport : ")
